@@ -32,9 +32,13 @@ DECK_BASE = ["Closed_Fist", "Closed_Fist", "Open_Palm", "Open_Palm", "Thumb_Up",
 def deal_hand(pid):
     p = players[pid]
     p['hand'] = []
+    
+    # Extragem exact 3 cărți
     for _ in range(3):
-        if not p['deck']:
+        # Dacă deck-ul s-a golit în mijlocul tragerii, îl recreăm din pachetul original
+        if len(p['deck']) == 0:
             p['deck'] = random.sample(p['original_deck'], len(p['original_deck']))
+            
         p['hand'].append(p['deck'].pop())
 
 async def broadcast_state():
@@ -73,8 +77,8 @@ async def join_game(sid, data):
     
     players[sid] = {
         "name": name, "hp": 100, "energy": 10, "shield": 0, "energy_regen": 5,
-        "original_deck": custom_deck.copy(),
-        "deck": random.sample(custom_deck, len(custom_deck)), 
+        "original_deck": custom_deck.copy(),  # Păstrăm deck-ul exact cum a venit de pe front-end
+        "deck": random.sample(custom_deck, len(custom_deck)), # Îl amestecăm pentru prima mână
         "hand": []
     }
     ready_players.add(sid)
