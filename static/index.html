@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hand Battle</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+
+    <!-- PASUL 1: LOGIN -->
+    <div id="lobby">
+        <h1>Hand Battle</h1>
+        <div id="login-form">
+            <input type="text" id="player-name" placeholder="Enter your name" maxlength="15" autocomplete="off">
+            <button id="next-btn">Next: Build Deck</button>
+        </div>
+    </div>
+
+    <!-- PASUL 2: DECK BUILDER -->
+    <div id="deck-builder" style="display: none;">
+        <h2>Build Your Deck</h2>
+        <p style="color: #03dac6;">Choose exactly 10 cards (Max 4 of each)</p>
+        <div id="deck-count-display">Total: <span id="deck-total">0</span> / 10</div>
+        
+        <div class="deck-grid" id="deck-grid-container">
+            <!-- Injectate prin JS -->
+        </div>
+
+        <button id="join-btn" disabled>Find Match</button>
+        <p id="status-text" style="display: none; margin-top: 15px;">Waiting for opponent... (1/2)</p>
+    </div>
+
+    <!-- PASUL 3: JOCUL -->
+    <div id="game" style="display: none;">
+        <div id="top-bar">
+            <div id="round-indicator">ROUND 1 / 5</div>
+            <div id="turn-indicator">WAITING...</div>
+        </div>
+        
+        <div id="combat-log">Game starting...</div>
+        
+        <div class="video-container">
+            <!-- Opponent Camera -->
+            <div class="player-cam remote">
+                <div class="stats" id="remote-stats">
+                    <div class="stat-name" id="remote-name">Opponent</div>
+                    <div class="stat-hp">❤️ <span id="remote-hp">100</span></div>
+                    <div class="stat-en">⚡ <span id="remote-en">10</span></div>
+                    <div class="stat-sh">🛡️ <span id="remote-sh">0</span></div>
+                </div>
+                <div class="status-effects" id="remote-status-container"></div>
+                <video id="remote-video" autoplay playsinline></video>
+            </div>
+            
+            <!-- Local Camera -->
+            <div class="player-cam local">
+                <div class="stats" id="local-stats">
+                    <div class="stat-name" id="local-name">You</div>
+                    <div class="stat-hp" style="color: #ff5252;">❤️ <span id="local-hp">100</span></div>
+                    <div class="stat-en" style="color: #ffd600;">⚡ <span id="local-en">10</span></div>
+                    <div class="stat-sh" style="color: #03dac6;">🛡️ <span id="local-sh">0</span></div>
+                </div>
+                <div class="status-effects" id="local-status-container"></div>
+                <video id="local-video" autoplay playsinline muted></video>
+                <div id="charge-bar-container"><div id="charge-bar"></div></div>
+            </div>
+        </div>
+
+        <div class="cards" id="my-hand-container"></div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
