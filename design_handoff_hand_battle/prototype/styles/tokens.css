@@ -1,0 +1,157 @@
+/* ===========================================================
+   HAND BATTLE — Design tokens
+   Dark fantasy elegant · deep violet · candlelight gold
+   =========================================================== */
+
+:root {
+  /* Backgrounds — ink to violet */
+  --ink-void:    #08060f;
+  --ink-deep:    #120a22;
+  --ink-mid:     #1b1132;
+  --ink-soft:    #2a1c4a;
+  --ink-hover:   #382663;
+
+  /* Arcane purples */
+  --violet-arcane:  #6b4ee8;
+  --violet-glow:    #b89cff;
+  --violet-mist:    #8a6df0;
+  --violet-deep:    #3b2380;
+
+  /* Candlelight gold */
+  --gold-deep:    #6e5224;
+  --gold-base:    #b88a3e;
+  --gold-candle:  #d4a857;
+  --gold-bright:  #f5d28a;
+  --gold-pale:    #ffe9b8;
+
+  /* Parchment + ink */
+  --parchment:    #ede2c6;
+  --parchment-dim:#bfb198;
+  --ink-text:     #f3ecdb;
+  --ink-muted:    #a89cb8;
+  --ink-faint:    #6a5e80;
+
+  /* Semantic */
+  --blood:        #c14545;   /* HP / damage */
+  --blood-glow:   #ff6868;
+  --teal-ward:    #4ec3a8;   /* shield */
+  --teal-glow:    #7de4cb;
+  --ember:        #e88848;   /* offensive cards */
+  --azure:        #5fb0e8;   /* defensive cards */
+  --amber:        #e8c14e;   /* utility cards */
+
+  /* Type families */
+  --f-display: "Cinzel", "Cormorant Garamond", serif;
+  --f-serif:   "EB Garamond", "Cormorant Garamond", Georgia, serif;
+  --f-sans:    "Inter", system-ui, -apple-system, sans-serif;
+  --f-mono:    "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Type scale */
+  --t-hero:    clamp(48px, 7vw, 96px);
+  --t-h1:      clamp(32px, 4vw, 56px);
+  --t-h2:      clamp(22px, 2.4vw, 32px);
+  --t-h3:      18px;
+  --t-body:    15px;
+  --t-small:   13px;
+  --t-tiny:    11px;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* Radii */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+  --r-card: 14px;
+
+  /* Shadows + glows */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,0.5);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.55);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.7), 0 4px 14px rgba(107, 78, 232, 0.18);
+  --shadow-inner: inset 0 1px 0 rgba(255, 233, 184, 0.08), inset 0 -1px 0 rgba(0,0,0,0.5);
+
+  --glow-violet: 0 0 24px rgba(107, 78, 232, 0.55), 0 0 48px rgba(107, 78, 232, 0.28);
+  --glow-gold:   0 0 18px rgba(212, 168, 87, 0.5),  0 0 40px rgba(212, 168, 87, 0.25);
+  --glow-blood:  0 0 18px rgba(193, 69, 69, 0.55),  0 0 36px rgba(193, 69, 69, 0.28);
+  --glow-teal:   0 0 18px rgba(78, 195, 168, 0.55), 0 0 36px rgba(78, 195, 168, 0.28);
+
+  /* Filigree gradients */
+  --grad-gold:   linear-gradient(135deg, #6e5224 0%, #d4a857 30%, #f5d28a 50%, #d4a857 70%, #6e5224 100%);
+  --grad-gold-h: linear-gradient(180deg, #6e5224 0%, #d4a857 50%, #6e5224 100%);
+  --grad-violet: linear-gradient(135deg, #2c1654 0%, #6b4ee8 50%, #b89cff 100%);
+  --grad-stage:  radial-gradient(ellipse at 50% 0%, #2a1845 0%, #120a22 45%, #08060f 100%);
+
+  /* Motion */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Motion intensity (set by tweaks: max/med/low) */
+  --motion-scale: 1;
+  --particle-density: 1;
+}
+
+/* Motion intensity modifiers */
+.motion-med { --motion-scale: 0.6; --particle-density: 0.5; }
+.motion-low { --motion-scale: 0.2; --particle-density: 0.1; }
+
+/* Palette accent shift */
+.palette-crimson {
+  --violet-arcane: #b8385c;
+  --violet-glow:   #ff7aa0;
+  --violet-mist:   #d44a78;
+  --violet-deep:   #5a1830;
+  --grad-violet:   linear-gradient(135deg, #3a0e22 0%, #b8385c 50%, #ff7aa0 100%);
+  --grad-stage:    radial-gradient(ellipse at 50% 0%, #3a0e22 0%, #1a0510 45%, #08060f 100%);
+}
+.palette-emerald {
+  --violet-arcane: #2f9e7a;
+  --violet-glow:   #7de4cb;
+  --violet-mist:   #4ec3a8;
+  --violet-deep:   #103d2e;
+  --grad-violet:   linear-gradient(135deg, #0a2419 0%, #2f9e7a 50%, #7de4cb 100%);
+  --grad-stage:    radial-gradient(ellipse at 50% 0%, #143626 0%, #08160f 45%, #06090a 100%);
+}
+.palette-azure {
+  --violet-arcane: #3f7be8;
+  --violet-glow:   #8db8ff;
+  --violet-mist:   #5e96f0;
+  --violet-deep:   #1a2c66;
+  --grad-violet:   linear-gradient(135deg, #0e1a3a 0%, #3f7be8 50%, #8db8ff 100%);
+  --grad-stage:    radial-gradient(ellipse at 50% 0%, #18234e 0%, #0a0e22 45%, #05060f 100%);
+}
+
+/* ===== Reset + base ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--f-sans);
+  font-size: var(--t-body);
+  color: var(--ink-text);
+  background: var(--ink-void);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+input, select, textarea { font-family: inherit; color: inherit; }
+img, svg { display: block; }
+ul, ol { list-style: none; }
+:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; border-radius: 4px; }
+
+/* ===== Typography utility ===== */
+.t-display { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.02em; }
+.t-serif   { font-family: var(--f-serif); }
+.t-mono    { font-family: var(--f-mono); }
+.t-eyebrow { font-family: var(--f-sans); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-muted); font-weight: 500; }
+.t-gold    { background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold-candle) 50%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }

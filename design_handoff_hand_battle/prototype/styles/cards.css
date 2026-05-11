@@ -1,0 +1,257 @@
+/* ===========================================================
+   CARDS — playing cards with hybrid frames + glow
+   =========================================================== */
+
+.card {
+  --card-w: 168px;
+  --card-h: 240px;
+  --type-color: var(--gold-candle);
+  --type-glow: 212, 168, 87;
+
+  width: var(--card-w);
+  height: var(--card-h);
+  position: relative;
+  border-radius: var(--r-card);
+  flex-shrink: 0;
+  transition: transform 280ms var(--ease-spring), filter 200ms;
+  will-change: transform;
+  cursor: pointer;
+}
+.card.type-offense  { --type-color: var(--ember); --type-glow: 232, 136, 72; }
+.card.type-defense  { --type-color: var(--azure); --type-glow: 95, 176, 232; }
+.card.type-utility  { --type-color: var(--amber); --type-glow: 232, 193, 78; }
+
+/* Card frame — gold gradient border via padding-box trick */
+.card-frame {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg, var(--gold-base) 0%, var(--gold-deep) 50%, var(--gold-base) 100%);
+  box-shadow: var(--shadow-md);
+}
+.card-inner {
+  position: absolute; inset: 1.5px;
+  border-radius: calc(var(--r-card) - 1.5px);
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(var(--type-glow), 0.22) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(40, 26, 76, 0.95) 0%, rgba(15, 8, 28, 0.98) 100%);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* Filigree corners on card */
+.card-inner::before, .card-inner::after {
+  content: ""; position: absolute; width: 14px; height: 14px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--gold-candle), var(--gold-candle)) left top / 100% 1px no-repeat,
+    linear-gradient(var(--gold-candle), var(--gold-candle)) left top / 1px 100% no-repeat;
+  opacity: 0.75;
+}
+.card-inner::before { top: 5px; left: 5px; }
+.card-inner::after  { top: 5px; right: 5px; transform: scaleX(-1); }
+.card-inner > .card-fil-bl,
+.card-inner > .card-fil-br {
+  position: absolute; bottom: 5px; width: 14px; height: 14px; pointer-events: none;
+  opacity: 0.75;
+  background:
+    linear-gradient(var(--gold-candle), var(--gold-candle)) left bottom / 100% 1px no-repeat,
+    linear-gradient(var(--gold-candle), var(--gold-candle)) left bottom / 1px 100% no-repeat;
+}
+.card-inner > .card-fil-bl { left: 5px; }
+.card-inner > .card-fil-br { right: 5px; transform: scaleX(-1); }
+
+/* Cost gem (top-left) */
+.card-cost {
+  position: absolute;
+  top: 9px; left: 9px;
+  width: 30px; height: 36px;
+  background: linear-gradient(180deg, var(--violet-glow), var(--violet-arcane) 60%, var(--violet-deep));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-weight: 700; font-size: 15px;
+  color: var(--ink-text);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+  filter: drop-shadow(0 0 6px rgba(184, 156, 255, 0.5));
+  z-index: 3;
+}
+
+/* Card name (top, centered, in ribbon area) */
+.card-name {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--gold-bright);
+  margin: 10px 42px 0 42px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(212, 168, 87, 0.3);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+
+/* Sigil container */
+.card-sigil {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  padding: 6px 8px;
+}
+.card-sigil svg {
+  width: 70%;
+  max-width: 88px;
+  height: auto;
+  color: var(--type-color);
+  filter: drop-shadow(0 0 12px rgba(var(--type-glow), 0.6)) drop-shadow(0 0 4px rgba(var(--type-glow), 0.4));
+}
+.card-sigil::before {
+  content: "";
+  position: absolute;
+  width: 64%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--type-glow), 0.25) 0%, transparent 70%);
+  z-index: -1;
+}
+
+/* Bottom: type ribbon + effect text */
+.card-foot {
+  padding: 6px 10px 10px 10px;
+  border-top: 1px solid rgba(212, 168, 87, 0.22);
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.3));
+}
+.card-type {
+  font-family: var(--f-display);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--type-color);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.card-effect {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--parchment-dim);
+}
+.card-effect strong { color: var(--parchment); font-style: normal; font-weight: 600; }
+
+/* Card hover / interactive */
+.card:hover:not(.disabled) {
+  transform: translateY(-6px);
+  filter: brightness(1.08);
+  z-index: 5;
+}
+.card:hover:not(.disabled) .card-inner {
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--type-glow), 0.5),
+    0 0 24px rgba(var(--type-glow), 0.45);
+}
+
+/* States */
+.card.disabled {
+  filter: grayscale(0.8) brightness(0.45);
+  cursor: not-allowed;
+}
+.card.disabled .card-cost {
+  background: linear-gradient(180deg, #444, #222);
+  filter: none;
+}
+
+/* Active (gesture being held) — glow + shimmer */
+.card.active {
+  animation: card-active-pulse calc(1.6s / var(--motion-scale, 1)) ease-in-out infinite;
+  z-index: 6;
+}
+.card.active .card-inner {
+  box-shadow:
+    inset 0 0 0 2px rgba(var(--type-glow), 1),
+    0 0 36px rgba(var(--type-glow), 0.85),
+    0 0 72px rgba(var(--type-glow), 0.45);
+}
+.card.active .card-frame {
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-bright), var(--gold-candle), var(--gold-bright), var(--gold-pale));
+  background-size: 200% 200%;
+  animation: gold-flow 2s linear infinite;
+}
+@keyframes card-active-pulse {
+  0%, 100% { transform: translateY(-10px) scale(1); }
+  50%      { transform: translateY(-14px) scale(1.04); }
+}
+@keyframes gold-flow {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+
+/* Shimmer overlay for active state */
+.card.active .card-inner::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 245, 220, 0.25) 50%, transparent 60%);
+  background-size: 250% 100%;
+  animation: shimmer 1.6s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 2;
+}
+
+/* Selected (in deck builder) */
+.card.selected .card-frame {
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-bright), var(--gold-candle));
+  padding: 2.5px;
+}
+.card.selected .card-inner {
+  box-shadow:
+    inset 0 0 0 1px rgba(245, 210, 138, 0.5),
+    0 0 22px rgba(245, 210, 138, 0.35);
+}
+.card.selected::after {
+  content: "✓";
+  position: absolute; top: -6px; right: -6px;
+  width: 22px; height: 22px;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold-candle));
+  border: 1.5px solid var(--gold-deep);
+  border-radius: 50%;
+  color: #2a1c0a;
+  font-family: var(--f-mono);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--glow-gold);
+  z-index: 4;
+}
+
+/* Card sizes */
+.card.size-sm { --card-w: 120px; --card-h: 172px; }
+.card.size-sm .card-name { font-size: 9px; margin: 8px 36px 0; }
+.card.size-sm .card-cost { width: 24px; height: 28px; font-size: 12px; top: 6px; left: 6px; }
+.card.size-sm .card-effect { font-size: 9.5px; }
+.card.size-sm .card-type   { font-size: 8px; }
+
+.card.size-lg { --card-w: 220px; --card-h: 314px; }
+
+/* Card back (face down) */
+.card-back .card-inner {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(107, 78, 232, 0.35) 0%, transparent 60%),
+    linear-gradient(135deg, var(--ink-deep), var(--ink-mid), var(--ink-deep));
+}
+.card-back .card-back-sigil {
+  width: 50%; aspect-ratio: 1;
+  margin: auto;
+  border: 1.5px solid var(--gold-candle);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px rgba(212, 168, 87, 0.4), inset 0 0 16px rgba(212, 168, 87, 0.2);
+  position: relative;
+}
+.card-back .card-back-sigil::before {
+  content: ""; position: absolute; inset: 12%; border: 1px solid rgba(212, 168, 87, 0.5); border-radius: 50%;
+}
+.card-back .card-back-sigil::after {
+  content: ""; position: absolute; width: 8px; height: 8px;
+  background: var(--gold-candle); transform: rotate(45deg);
+  box-shadow: 0 0 12px var(--gold-bright);
+}

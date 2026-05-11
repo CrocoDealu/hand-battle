@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Hand Battle — Design Proposal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="styles/tokens.css"/>
+<link rel="stylesheet" href="styles/components.css"/>
+<link rel="stylesheet" href="styles/cards.css"/>
+<link rel="stylesheet" href="styles/screens.css"/>
+</head>
+<body class="palette-default motion-max">
+
+  <!-- Prototype top chrome -->
+  <nav class="proto-chrome">
+    <button class="proto-tab active" data-screen="lobby">Lobby</button>
+    <button class="proto-tab" data-screen="builder">Deck</button>
+    <button class="proto-tab" data-screen="battle">Battle</button>
+    <span class="proto-divider"></span>
+    <button class="proto-tab active" data-viewport="desktop">Desktop</button>
+    <button class="proto-tab" data-viewport="mobile">Mobile</button>
+  </nav>
+
+  <!-- App shell -->
+  <div class="app-shell">
+    <div class="stage" data-viewport="desktop">
+      <canvas class="embers"></canvas>
+
+      <div class="viewport">
+        <div class="viewport-frame">
+          <section class="screen lobby is-active" data-screen-label="01 Lobby">
+            <div class="lobby-content"></div>
+          </section>
+          <section class="screen builder" data-screen-label="02 Deck Builder"></section>
+          <section class="screen battle" data-screen-label="03 Battle"></section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tweaks panel -->
+  <aside class="tweaks-panel"></aside>
+
+  <!-- Scripts -->
+  <script src="js/sigils.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/prototype.js"></script>
+</body>
+</html>

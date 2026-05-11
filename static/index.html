@@ -1,163 +1,322 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hand Battle</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Stiluri extra pentru legenda de testare */
-        .test-layout {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .gestures-legend {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            max-width: 500px;
-            text-align: left;
-            font-size: 0.85rem;
-        }
-        .legend-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .legend-item {
-            border-bottom: 1px solid #222;
-            padding: 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .legend-item b { color: #03dac6; }
-        .legend-section-title {
-            grid-column: span 2;
-            color: #bb86fc;
-            font-weight: bold;
-            margin-top: 10px;
-            border-bottom: 1px solid #bb86fc;
-            padding-bottom: 2px;
-        }
-    </style>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <!-- Fingerpose a fost eliminat, folosim acum MediaPipe Tasks Vision direct în app.js -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hand Battle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="sigils.js"></script>
 </head>
-<body>
-    <!-- LOBBY -->
-    <div id="lobby">
-        <h1>Hand Battle</h1>
-        <div id="login-form">
-            <input type="text" id="player-name" placeholder="Numele tău" maxlength="15" autocomplete="off">
-            <select id="player-class">
-                <option value="Soldatul">Soldatul (120 HP / 10 Scut / 5 Reg)</option>
-                <option value="Magul">Magul (80 HP / Magie Ieftină / 6 Reg)</option>
-                <option value="Capcaunul">Căpcăunul (180 HP / Atac +5 / 4 Reg)</option>
-                <option value="Asasinul">Asasinul (90 HP / Primul atac x2 / 4 Reg)</option>
-                <option value="Bancherul">Bancherul (100 HP / 20 En Start / 3 Reg)</option>
-            </select>
-            <div style="display: flex; gap: 10px; width: 100%; max-width: 350px;">
-                <button id="test-signs-btn" style="flex: 1; background: #03dac6; color: black;">Test Semne</button>
-                <button id="next-btn" style="flex: 2;">Pasul Următor</button>
-            </div>
-        </div>
-    </div>
+<body class="motion-max">
 
-    <!-- ECRAN TESTARE SEMNE (DEBUG) -->
-    <div id="test-screen" style="display: none;">
-        <h2>🛠️ Testare Semne (AI Model)</h2>
-        
-        <div class="test-layout">
-            <!-- Partea Stângă: Video + Rezultat -->
-            <div style="flex: 1; min-width: 320px;">
-                <div class="player-cam" style="margin-bottom: 10px;">
-                    <video id="test-video" autoplay playsinline muted></video>
-                </div>
-                <div id="test-result" style="font-size: 1.5rem; color: #03dac6; margin-bottom: 5px; font-weight: bold;">Aștept mâna...</div>
-                <div id="test-debug" style="font-family: monospace; color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">Pornire motor AI...</div>
-            </div>
+  <!-- Ambient embers -->
+  <canvas id="embers-canvas" class="embers"></canvas>
 
-            <!-- Partea Dreaptă: Legenda Semnelor Actualizată conform Documentației -->
-            <div class="gestures-legend">
-                <h3 style="margin-top: 0; color: #bb86fc; text-align: center;">📖 Ghid Gesturi Noi</h3>
-                <div class="legend-grid">
-                    <div class="legend-section-title">⚔️ OFENSIVĂ</div>
-                    <div class="legend-item">🔫 <b>Atac</b>: Pistol</div>
-                    <div class="legend-item">🪄 <b>Magie</b>: Bagheta</div>
-                    <div class="legend-item">🧘 <b>Concentrare</b>: Zen</div>
-                    <div class="legend-item">✊ <b>Garda</b>: Pumn</div>
-                    <div class="legend-item">🤘 <b>Dubla</b>: Coarne</div>
+  <!-- ==================== LOBBY ==================== -->
+  <div id="lobby">
+    <div class="lobby-content" id="lobby-content">
 
-                    <div class="legend-section-title">🛡️ DEFENSIVĂ</div>
-                    <div class="legend-item">🖐️ <b>Scut</b>: Stop</div>
-                    <div class="legend-item">🖖 <b>Bariera</b>: Spock</div>
-                    <div class="legend-item">🤙 <b>Reflectie</b>: Shaka</div>
-                    <div class="legend-item">🤏 <b>Ghimpi</b>: Deget mic</div>
-                    <div class="legend-item">👍 <b>Purificare</b>: Thumb Up</div>
+      <div class="lobby-hero">
+        <div class="lobby-eyebrow">Hand of Spells &middot; AI Gesture Duel</div>
+        <h1 class="lobby-title">
+          <span class="lobby-title-flank" aria-hidden="true">&#9670;</span>Hand Battle<span class="lobby-title-flank" aria-hidden="true">&#9670;</span>
+        </h1>
+        <p class="lobby-subtitle">&ldquo;Ridică-ți mâna. Lasă-i pe ceilalți să tremure.&rdquo;</p>
+      </div>
 
-                    <div class="legend-section-title">🌀 UTILITATE & SISTEM</div>
-                    <div class="legend-item">👌 <b>Buff</b>: OK</div>
-                    <div class="legend-item">🤏 <b>Pregatire</b>: Pinch</div>
-                    <div class="legend-item">👎 <b>Debuff</b>: Thumb Down</div>
-                    <div class="legend-item">👆 <b>Vulnerabil</b>: Forma L</div>
-                    <div class="legend-item">🤟 <b>Sacrificiu</b>: Spider</div>
-                    <div class="legend-item">3️⃣ <b>Adrenalina</b>: 3 degete</div>
-                    <div class="legend-item">🤚 <b>Viziune</b>: Zen Inelar</div>
-                    <div class="legend-item">🤞 <b>Arhiva</b>: Încrucișate</div>
-                    <div class="legend-item">✋ <b>Pass Turn</b>: 4 degete</div>
-                </div>
-            </div>
+      <div class="lobby-form">
+        <div>
+          <div class="field-label">&#9670; Numele Vrăjitorului &#9670;</div>
+          <input type="text" id="player-name" class="input"
+            placeholder="Introdu numele tău..." maxlength="15" autocomplete="off">
         </div>
 
-        <button id="back-lobby-btn" style="margin-top: 15px; background: #cf6679;">Înapoi la meniu</button>
+        <!-- Hidden select kept for app.js backward compat -->
+        <select id="player-class" aria-hidden="true"
+          style="position:absolute;opacity:0;pointer-events:none;height:0;width:0;overflow:hidden">
+          <option value="Soldatul">Soldatul</option>
+          <option value="Magul">Magul</option>
+          <option value="Capcaunul">Căpcăunul</option>
+          <option value="Asasinul">Asasinul</option>
+          <option value="Bancherul">Bancherul</option>
+        </select>
+
+        <div>
+          <div class="field-label">&#9670; Alege Clasa &#9670;</div>
+          <div class="class-grid" id="class-grid">
+            <!-- Populated by app.js boot -->
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;width:100%;align-items:stretch">
+          <button id="test-signs-btn" class="btn btn-ghost" style="height:52px;white-space:nowrap">
+            Test Semne
+          </button>
+          <button id="next-btn" class="btn btn-primary" style="flex:1;height:60px">
+            Pasul Următor &rarr;
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== TEST SCREEN ==================== -->
+  <div id="test-screen">
+    <h2 class="t-display" style="font-size:22px;color:var(--gold-candle);letter-spacing:0.1em;margin-bottom:4px">
+      Test Semne
+    </h2>
+    <p style="font-family:var(--f-serif);font-style:italic;color:var(--parchment-dim);margin-bottom:16px">
+      Verifică recunoașterea gesturilor AI
+    </p>
+
+    <div class="test-layout">
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:12px">
+        <div class="video-tile" style="max-width:420px;margin:0 auto">
+          <video id="test-video" autoplay playsinline muted></video>
+          <div class="video-tile-placeholder">Camera</div>
+          <div class="video-tile-label">Test Mode</div>
+        </div>
+        <div id="test-result"
+          style="font-family:var(--f-display);font-size:1.3rem;color:var(--teal-glow);font-weight:700;text-align:center;letter-spacing:0.1em">
+          Aștept mâna...
+        </div>
+        <div id="test-debug"
+          style="font-family:var(--f-mono);color:var(--ink-muted);font-size:0.85rem;background:rgba(0,0,0,0.45);padding:12px 16px;border-radius:8px;border:1px solid rgba(212,168,87,0.15);line-height:1.5">
+          Pornire motor AI...
+        </div>
+      </div>
+
+      <div class="gestures-legend panel" style="flex:1;min-width:280px;max-width:500px">
+        <h3 style="margin:0 0 12px;color:var(--gold-candle);font-family:var(--f-display);font-size:13px;letter-spacing:0.2em;text-transform:uppercase">
+          Ghid Gesturi
+        </h3>
+        <div class="legend-grid">
+          <div class="legend-section-title">⚔️ OFENSIVĂ</div>
+          <div class="legend-item">🔫 <b>Atac</b>: Pistol</div>
+          <div class="legend-item">🪄 <b>Magie</b>: Baghetă</div>
+          <div class="legend-item">🧘 <b>Concentrare</b>: Zen</div>
+          <div class="legend-item">✊ <b>Gardă</b>: Pumn</div>
+          <div class="legend-item">🤘 <b>Dublă</b>: Coarne</div>
+          <div class="legend-section-title">🛡️ DEFENSIVĂ</div>
+          <div class="legend-item">🖐️ <b>Scut</b>: Stop</div>
+          <div class="legend-item">🖖 <b>Barieră</b>: Spock</div>
+          <div class="legend-item">🤙 <b>Reflecție</b>: Shaka</div>
+          <div class="legend-item">🤏 <b>Ghimpi</b>: Deget mic</div>
+          <div class="legend-item">👍 <b>Purificare</b>: Thumb Up</div>
+          <div class="legend-section-title">🌀 UTILITATE</div>
+          <div class="legend-item">👌 <b>Buff</b>: OK</div>
+          <div class="legend-item">🤏 <b>Pregătire</b>: Pinch</div>
+          <div class="legend-item">👎 <b>Debuff</b>: Thumb Down</div>
+          <div class="legend-item">👆 <b>Vulnerabil</b>: Forma L</div>
+          <div class="legend-item">🤟 <b>Sacrificiu</b>: Spider</div>
+          <div class="legend-item">3️⃣ <b>Adrenalină</b>: 3 degete</div>
+          <div class="legend-item">🤚 <b>Viziune</b>: Zen Inelar</div>
+          <div class="legend-item">🤞 <b>Arhivă</b>: Încrucișate</div>
+          <div class="legend-item">✋ <b>Pass Turn</b>: 4 degete</div>
+        </div>
+      </div>
     </div>
 
-    <!-- DECK BUILDER -->
-    <div id="deck-builder" style="display: none;">
-        <h2>Construiește Pachetul (15 Cărți)</h2>
-        <div id="deck-count-display">Total: <span id="deck-total" style="color: #ffeb3b;">0</span> / 15</div>
-        <div class="deck-grid" id="deck-grid-container"></div>
-        <button id="join-btn" disabled>Caută Adversar</button>
-        <p id="status-text" style="display: none; margin-top: 15px; color: #03dac6;">Aștept adversar... (1/2)</p>
+    <button id="back-lobby-btn" class="btn btn-ghost" style="margin-top:20px">
+      &larr; Înapoi la meniu
+    </button>
+  </div>
+
+  <!-- ==================== DECK BUILDER ==================== -->
+  <div id="deck-builder">
+
+    <div class="builder-header">
+      <div>
+        <div class="builder-title">Construiește Decul</div>
+        <div class="builder-subtitle">
+          Alege exact <span style="color:var(--gold-bright);font-weight:600">15 cărți</span> din arhive
+        </div>
+      </div>
+      <div class="builder-filters" id="builder-filters">
+        <button class="chip active" data-filter="all">Toate</button>
+        <button class="chip" data-filter="offense">Ofensive</button>
+        <button class="chip" data-filter="defense">Defensive</button>
+        <button class="chip" data-filter="utility">Utilitate</button>
+      </div>
     </div>
 
-    <!-- JOC -->
-    <div id="game" style="display: none;">
-        <div id="top-bar">
-            <div id="round-indicator">RUNDA 1 / 5</div>
-            <div id="turn-indicator">AȘTEPTARE...</div>
+    <div class="builder-body">
+      <!-- Card pool — app.js renders cards here -->
+      <div class="card-pool" id="deck-grid-container"></div>
+
+      <!-- Deck sidebar -->
+      <div class="deck-side panel panel-ornate filigree">
+        <span class="filigree-bl"></span><span class="filigree-br"></span>
+        <div style="text-align:center">
+          <div class="t-eyebrow t-gold" style="margin-bottom:8px">Decul Tău</div>
         </div>
-        <div id="combat-log">Meciul începe...</div>
-        <div class="video-container">
-            <div class="player-cam remote">
-                <div class="stats" id="remote-stats">
-                    <div class="stat-name" id="remote-name">Adversar</div>
-                    <div class="stat-hp">❤️ <span id="remote-hp">100</span></div>
-                    <div class="stat-en">⚡ <span id="remote-en">10</span></div>
-                    <div class="stat-sh">🛡️ <span id="remote-sh">0</span></div>
-                </div>
-                <div class="status-effects" id="remote-status-container"></div>
-                <video id="remote-video" autoplay playsinline></video>
+        <div class="deck-progress">
+          <svg viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="gold-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#f5d28a"/>
+                <stop offset="50%" stop-color="#d4a857"/>
+                <stop offset="100%" stop-color="#8a6a2e"/>
+              </linearGradient>
+            </defs>
+            <circle class="deck-progress-track" cx="60" cy="60" r="52"/>
+            <circle class="deck-progress-fill" id="deck-progress-ring"
+              cx="60" cy="60" r="52"
+              stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+          </svg>
+          <div class="deck-progress-center">
+            <div>
+              <span class="deck-counter-num" id="deck-total">0</span><span
+                style="font-family:var(--f-display);font-size:26px;color:var(--ink-faint)">/15</span>
             </div>
-            <div class="player-cam local">
-                <div class="stats" id="local-stats">
-                    <div class="stat-name" id="local-name">Tu</div>
-                    <div class="stat-hp" style="color: #ff5252;">❤️ <span id="local-hp">100</span></div>
-                    <div class="stat-en" style="color: #ffd600;">⚡ <span id="local-en">10</span></div>
-                    <div class="stat-sh" style="color: #03dac6;">🛡️ <span id="local-sh">0</span></div>
-                </div>
-                <div class="status-effects" id="local-status-container"></div>
-                <video id="local-video" autoplay playsinline muted></video>
-                <div id="charge-bar-container"><div id="charge-bar"></div></div>
-            </div>
+            <div class="deck-counter-label">Cărți</div>
+          </div>
         </div>
-        <div class="cards" id="my-hand-container"></div>
+        <div class="deck-list" id="deck-list"></div>
+      </div>
     </div>
-    <script type="module" src="app.js"></script>
+
+    <div class="builder-foot">
+      <!-- deck-count-display kept as hidden for backward compat -->
+      <div id="deck-count-display" style="display:none"></div>
+      <p id="status-text" style="display:none;color:var(--teal-glow);font-family:var(--f-serif);font-style:italic;flex:1">
+        Aștept adversar...
+      </p>
+      <button id="join-btn" class="btn btn-primary" disabled>
+        Mai ai nevoie de 15 cărți
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ==================== GAME ==================== -->
+  <div id="game">
+
+    <!-- Opponent band (top) -->
+    <div class="battle-band">
+
+      <!-- Opponent stats (left) -->
+      <div class="player-block" id="remote-stats">
+        <div class="player-meta">
+          <div class="player-class-sigil" id="remote-class-sigil"></div>
+          <div>
+            <div class="player-name" id="remote-name">Adversar</div>
+            <div class="player-class-label">Necunoscut</div>
+          </div>
+        </div>
+        <div class="player-stats">
+          <div class="hp-bar">
+            <div class="hp-bar-fill" id="remote-hp-fill" style="transform:scaleX(1)"></div>
+            <div class="hp-bar-text"><span id="remote-hp">100</span></div>
+          </div>
+          <div class="energy-bar" id="remote-energy-bar">
+            <!-- crystals rendered by app.js -->
+          </div>
+          <div class="stat-row" style="justify-content:space-between">
+            <span class="stat-shield">
+              <span style="color:var(--teal-glow)">&#9651;</span>&nbsp;<span id="remote-sh">0</span>
+            </span>
+            <div class="status-effects" id="remote-status-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opponent video (center) -->
+      <div class="video-tile" id="remote-video-tile">
+        <video id="remote-video" autoplay playsinline></video>
+        <div class="video-tile-placeholder">Adversar · Webcam</div>
+        <div class="video-tile-label" id="remote-video-label">Adversar</div>
+      </div>
+
+      <!-- Round / turn info (right) -->
+      <div class="battle-info battle-info-right" style="align-items:flex-end;padding-right:4px">
+        <div id="round-indicator" class="t-eyebrow" style="letter-spacing:0.22em">RUNDA 1</div>
+        <div id="turn-indicator" class="t-display"
+          style="font-size:16px;color:var(--gold-candle);letter-spacing:0.1em">
+          AȘTEPTARE
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Arena (center) -->
+    <div class="battle-arena" id="battle-arena">
+      <!-- Cast ring spawned here by JS -->
+      <div id="cast-zone"></div>
+
+      <!-- Charge bar — .charging class toggled by app.js -->
+      <div class="charge-bar" id="charge-bar-container">
+        <div class="charge-bar-fill" id="charge-bar"></div>
+        <div class="charge-bar-glow"></div>
+        <div class="charge-bar-label">ȚINE GESTUL · 1.5S</div>
+      </div>
+
+      <!-- Battle log -->
+      <div class="battle-log" id="combat-log">
+        <div class="log-entry">
+          <span class="log-actor">Sistem</span>
+          <span class="log-text">Meciul începe...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your band (bottom) -->
+    <div class="battle-band">
+
+      <!-- Your energy / info (left) -->
+      <div class="battle-info" style="padding-left:4px">
+        <div class="t-eyebrow" style="letter-spacing:0.2em;margin-bottom:4px">Mâna ta</div>
+        <div class="energy-bar" id="local-energy-bar">
+          <!-- crystals rendered by app.js -->
+        </div>
+        <!-- Hidden span kept for app.js compat -->
+        <span id="local-en" style="display:none">10</span>
+      </div>
+
+      <!-- Your video (center) -->
+      <div class="video-tile" id="local-video-tile">
+        <video id="local-video" autoplay playsinline muted></video>
+        <div class="video-tile-placeholder">Tu · Webcam</div>
+        <div class="video-tile-label">Tu</div>
+      </div>
+
+      <!-- Your stats (right) -->
+      <div class="player-block" id="local-stats" style="align-items:flex-end">
+        <div class="player-meta" style="justify-content:flex-end">
+          <div style="text-align:right">
+            <div class="player-name" id="local-name">Tu</div>
+            <div class="player-class-label" id="local-class-label">Jucător</div>
+          </div>
+          <div class="player-class-sigil" id="local-class-sigil"></div>
+        </div>
+        <div class="player-stats">
+          <div class="hp-bar">
+            <div class="hp-bar-fill" id="local-hp-fill" style="transform:scaleX(1)"></div>
+            <div class="hp-bar-text"><span id="local-hp">100</span></div>
+          </div>
+          <!-- Hidden span for app.js compat; crystals rendered in left panel -->
+          <span id="remote-en" style="display:none">10</span>
+          <div class="stat-row" style="justify-content:space-between">
+            <span class="stat-shield">
+              <span style="color:var(--teal-glow)">&#9651;</span>&nbsp;<span id="local-sh">0</span>
+            </span>
+            <div class="status-effects" id="local-status-container"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Hand of cards -->
+    <div class="hand" id="my-hand-container"></div>
+
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
