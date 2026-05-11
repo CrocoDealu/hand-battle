@@ -249,6 +249,20 @@ socket.on('webrtc_offer', async o => { peerConnection.setRemoteDescription(new R
 socket.on('webrtc_answer', async a => peerConnection.setRemoteDescription(new RTCSessionDescription(a)));
 socket.on('webrtc_ice', async c => peerConnection.addIceCandidate(new RTCIceCandidate(c)));
 
+socket.on('game_over', (data) => {
+    isMyTurn = false;
+    resetCharge();
+    
+    const amIWinner = data.winner === myId;
+    const resultMsg = amIWinner ? "🏆 YOU WIN!" : "💀 YOU LOSE!";
+    
+    // Optional: Hide the game container and show a result screen, or just use an alert for now
+    alert(`${data.msg}\n${resultMsg}`);
+    
+    // Reset the game to lobby
+    window.location.reload();
+});
+
 // ============================================
 // AI GESTURE ENGINE
 // ============================================
